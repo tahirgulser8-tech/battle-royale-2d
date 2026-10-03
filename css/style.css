@@ -37,10 +37,10 @@ body, html {
     top: 50px;
     left: 50%;
     transform: translateX(-50%) translateY(-30px);
-    background: rgba(30, 41, 59, 0.9);
+    background: rgba(30, 41, 59, 0.92);
     border: 1px solid #38bdf8;
     color: #f0f9ff;
-    padding: 8px 22px;
+    padding: 8px 24px;
     border-radius: 20px;
     font-size: 14px;
     font-weight: 700;
@@ -71,14 +71,14 @@ body, html {
 }
 
 .stats-pill {
-    background: rgba(15, 23, 42, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 18px;
     padding: 4px 12px;
     display: flex;
     align-items: center;
     gap: 8px;
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
     pointer-events: auto;
 }
 
@@ -99,13 +99,31 @@ body, html {
     background: rgba(255, 255, 255, 0.2);
 }
 
+.pill-action-btn {
+    background: rgba(56, 189, 248, 0.18);
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.pill-action-btn:hover {
+    background: #38bdf8;
+    color: #0f172a;
+}
+
 .icon-btn {
     background: none;
     border: none;
     color: #94a3b8;
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
-    padding: 0 2px;
+    padding: 0 4px;
     transition: color 0.15s;
 }
 
@@ -114,14 +132,14 @@ body, html {
 }
 
 .storm-pill {
-    background: rgba(46, 16, 70, 0.75);
+    background: rgba(46, 16, 70, 0.8);
     border: 1px solid #c084fc;
     border-radius: 14px;
     padding: 4px 12px;
     font-weight: 700;
     font-size: 12px;
     color: #ffffff;
-    box-shadow: 0 0 8px rgba(192, 132, 252, 0.3);
+    box-shadow: 0 0 10px rgba(192, 132, 252, 0.35);
 }
 
 /* Sol Alt: Can, Kalkan, Dürbün ve Çanta Rozetleri */
@@ -154,13 +172,13 @@ body, html {
 }
 
 .scope-badge {
-    background: rgba(37, 99, 235, 0.65);
+    background: rgba(37, 99, 235, 0.7);
     border: 1px solid #60a5fa;
     color: #eff6ff;
 }
 
 .backpack-badge {
-    background: rgba(217, 119, 6, 0.65);
+    background: rgba(217, 119, 6, 0.7);
     border: 1px solid #fbbf24;
     color: #fffbeb;
 }
@@ -169,8 +187,8 @@ body, html {
     position: relative;
     width: 100%;
     height: 14px;
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -213,7 +231,7 @@ body, html {
 }
 
 .slot-pill {
-    background: rgba(15, 23, 42, 0.7);
+    background: rgba(15, 23, 42, 0.75);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
     padding: 5px 10px;
@@ -228,8 +246,8 @@ body, html {
 .slot-pill.active {
     border-color: #ffd43b;
     color: #ffffff;
-    background: rgba(30, 41, 59, 0.9);
-    box-shadow: 0 0 8px rgba(255, 212, 59, 0.35);
+    background: rgba(30, 41, 59, 0.95);
+    box-shadow: 0 0 8px rgba(255, 212, 59, 0.4);
     transform: translateY(-2px);
 }
 
@@ -244,8 +262,8 @@ body, html {
 }
 
 .ammo-pill {
-    background: rgba(15, 23, 42, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 10px;
     padding: 6px 12px;
     display: flex;
@@ -266,15 +284,15 @@ body, html {
     color: #f8fafc;
 }
 
-/* Mobil Butonlar (Şeffaf ve Kompakt) */
+/* Mobil Butonlar */
 .mobile-action-buttons {
     display: none;
     position: absolute;
-    bottom: 80px;
-    right: 18px;
+    bottom: 75px;
+    right: 16px;
     z-index: 20;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
     opacity: var(--ui-opacity);
 }
 
@@ -283,13 +301,13 @@ body, html {
 }
 
 .action-btn {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: 1.5px solid rgba(255, 255, 255, 0.25);
-    background: rgba(15, 23, 42, 0.65);
+    background: rgba(15, 23, 42, 0.7);
     color: #fff;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: bold;
     display: flex;
     flex-direction: column;
@@ -300,15 +318,26 @@ body, html {
 }
 
 .action-btn span {
-    font-size: 8px;
+    font-size: 7.5px;
     text-transform: uppercase;
     font-weight: 800;
     color: #cbd5e1;
 }
 
+.action-btn.fire-btn {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.35);
+    width: 48px;
+    height: 48px;
+}
+
+.action-btn.map-btn {
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.25);
+}
+
 .action-btn:active {
     transform: scale(0.92);
-    background: rgba(51, 65, 85, 0.85);
     border-color: #ffd43b;
 }
 
@@ -319,8 +348,8 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(5, 8, 12, 0.85);
-    backdrop-filter: blur(10px);
+    background: rgba(8, 12, 18, 0.85);
+    backdrop-filter: blur(14px);
     display: none;
     justify-content: center;
     align-items: center;
@@ -331,109 +360,203 @@ body, html {
     display: flex;
 }
 
-.modal-card {
-    background: rgba(17, 24, 39, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 14px;
-    padding: 26px 36px;
+/* PREMIUM LOBİ KARTI */
+.premium-lobby-card {
+    background: linear-gradient(145deg, rgba(23, 32, 48, 0.95), rgba(15, 23, 42, 0.98));
+    border: 1.5px solid rgba(56, 189, 248, 0.3);
+    border-radius: 20px;
+    padding: 24px 30px;
     text-align: center;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-    max-width: 440px;
-    width: 88%;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.15);
+    max-width: 420px;
+    width: 90%;
+    animation: fadeInModal 0.25s ease-out;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.lobby-badge {
+    display: inline-block;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 3px 12px;
+    border-radius: 12px;
+    margin-bottom: 6px;
 }
 
 .game-logo {
     font-size: 32px;
     font-weight: 900;
     letter-spacing: 2px;
-    background: linear-gradient(135deg, #ffd43b, #ff922b);
+    background: linear-gradient(135deg, #ffffff, #94a3b8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 2px;
+    margin-bottom: 12px;
 }
 
-.game-sub {
+/* Canlı Karakter Önizlemesi */
+.character-preview-box {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 12px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(15, 23, 42, 0) 70%);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Kamuflaj Seçici */
+.camo-selector {
+    margin-bottom: 14px;
+}
+
+.section-label {
+    display: block;
     font-size: 11px;
-    letter-spacing: 3px;
+    font-weight: 700;
     color: #94a3b8;
-    margin-bottom: 22px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.input-group {
+.camo-options {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.camo-chip {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #cbd5e1;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 14px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.camo-chip.active {
+    background: #38bdf8;
+    color: #0f172a;
+    border-color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+/* Kariyer İstatistikleri */
+.career-stats-row {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+}
+
+.career-item {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    text-align: left;
-    margin-bottom: 18px;
 }
 
-.input-group label {
-    font-size: 12px;
+.c-val {
+    font-size: 16px;
+    font-weight: 900;
+    color: #ffd43b;
+}
+
+.c-lbl {
+    font-size: 10px;
+    color: #94a3b8;
     font-weight: 700;
-    color: #cbd5e1;
 }
 
 .input-group input {
-    background: rgba(30, 41, 59, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
+    width: 100%;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
     padding: 10px 14px;
     color: #ffffff;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
     outline: none;
+    margin-bottom: 12px;
 }
 
 .input-group input:focus {
-    border-color: #ffd43b;
+    border-color: #38bdf8;
 }
 
 .menu-actions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+.btn-primary.deploy-btn {
+    background: linear-gradient(135deg, #0284c7, #2563eb);
     color: #ffffff;
     border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 15px;
-    font-weight: 800;
+    border-radius: 10px;
+    padding: 13px 20px;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 1px;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-    transition: transform 0.1s, opacity 0.15s;
+    box-shadow: 0 4px 18px rgba(37, 99, 235, 0.5);
+    transition: transform 0.15s;
 }
 
-.btn-primary:active {
+.btn-primary.deploy-btn:active {
     transform: scale(0.97);
 }
 
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.08);
+.sub-btn-group {
+    display: flex;
+    gap: 6px;
+}
+
+.sub-btn-group .btn-secondary {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #e2e8f0;
     border-radius: 8px;
-    padding: 10px 16px;
-    font-size: 13px;
+    padding: 8px 10px;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.15s;
 }
 
-.btn-secondary:hover {
+.sub-btn-group .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.15);
 }
 
-/* Ayarlar */
-.settings-card {
+/* Ayarlar & Yardım */
+.settings-card, .help-card {
     text-align: left;
+    background: rgba(17, 24, 39, 0.95);
+    border-radius: 16px;
+    padding: 22px 28px;
 }
 
 .modal-header h2 {
-    font-size: 18px;
+    font-size: 17px;
     margin-bottom: 16px;
     color: #f1f5f9;
 }
@@ -449,27 +572,21 @@ body, html {
 
 .setting-row input[type="range"] {
     width: 140px;
-    accent-color: #ffd43b;
+    accent-color: #38bdf8;
 }
 
 .setting-row input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #2563eb;
-    cursor: pointer;
-}
-
-/* Yardım */
-.help-card {
-    text-align: left;
-    max-height: 80vh;
-    overflow-y: auto;
+    accent-color: #0284c7;
 }
 
 .help-content {
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 12.5px;
+    line-height: 1.55;
     color: #cbd5e1;
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .help-content hr {
@@ -478,7 +595,6 @@ body, html {
     border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* Zafer / Elenme Başlıkları */
 .title.victory {
     color: #ffd43b;
     font-size: 26px;

@@ -73,8 +73,33 @@ class Player {
         this.punchHand = 0;
         this.punchAnim = 0;
 
-        this.bodyColor = isBot ? '#e06c75' : '#61afef';
+        // Renkler ve Kamuflaj
+        this.skinId = 'default';
+        this.bodyColor = isBot ? '#e06c75' : '#3b82f6';
+        this.helmetColor = isBot ? '#b91c1c' : '#1d4ed8';
         this.skinColor = '#f5cba7';
+        this.stepTimer = 0;
+    }
+
+    // Karakter Kamuflajını Uygula
+    applySkin(skinId) {
+        this.skinId = skinId;
+        if (skinId === 'desert') {
+            this.bodyColor = '#d97706';
+            this.helmetColor = '#b45309';
+        } else if (skinId === 'night') {
+            this.bodyColor = '#1e293b';
+            this.helmetColor = '#0f172a';
+        } else if (skinId === 'jungle') {
+            this.bodyColor = '#2d6a4f';
+            this.helmetColor = '#1b4332';
+        } else if (skinId === 'cyber') {
+            this.bodyColor = '#06b6d4';
+            this.helmetColor = '#7c3aed';
+        } else {
+            this.bodyColor = '#3b82f6';
+            this.helmetColor = '#1d4ed8';
+        }
     }
 
     // Çantaya göre maksimum cephane kapasitesini hesapla
@@ -89,7 +114,7 @@ class Player {
 
     // Çantaya göre maksimum ilk yardım eşyası kapasitesi
     getMaxItemCount() {
-        return 2 + (this.backpackLevel * 2); // Çantasız 2, Seviye 3 çanta ile 8 adet
+        return 2 + (this.backpackLevel * 2);
     }
 
     // Aktif silahı getir
@@ -112,7 +137,21 @@ class Player {
         if (weapon.ammo >= weapon.magSize) return;
 
         const reserve = this.ammoPouch[weapon.ammoType] || 0;
-        if (reserve <= 0) return;
+        if (reserve <= 0) {
+            // Yedek mermi yoksa oyuncuyu haberdar et ve yumruğa / diğer silaha geçir
+            if (!this.isBot) {
+                window.particleManager.addDamageText(this.x, this.y, 'Cephane Bitti!', 'shield');
+                // Diğer slotta mermili silah var mı kontrol et
+                const otherSlot = this.activeWeaponIndex === 0 ? 1 : 0;
+                if (this.weapons[otherSlot] && this.weapons[otherSlot].ammo > 0) {
+                    this.switchWeapon(otherSlot);
+                } else {
+                    // Yoksa yumruğa geç ki oyuncu kilitlenmesin
+                    this.switchWeapon(2);
+                }
+            }
+            return;
+        }
 
         this.isReloading = true;
         this.reloadDuration = weapon.reloadTime;
@@ -201,7 +240,20 @@ class Player {
         if (this.isReloading) return;
 
         if (weapon.ammo <= 0) {
-            this.startReload();
+            const reserve = this.ammoPouch[weapon.ammoType] || 0;
+            if (reserve > 0) {
+                this.startReload();
+            } else {
+                if (!this.isBot) {
+                    window.particleManager.addDamageText(this.x, this.y, 'Cephane Tükendi!', 'shield');
+                    const otherSlot = this.activeWeaponIndex === 0 ? 1 : 0;
+                    if (this.weapons[otherSlot] && this.weapons[otherSlot].ammo > 0) {
+                        this.switchWeapon(otherSlot);
+                    } else {
+                        this.switchWeapon(2); // Yumruğa geç
+                    }
+                }
+            }
             return;
         }
 
@@ -450,6 +502,25 @@ class Player {
         // Otomatik eşya toplama kontrolü
         this.checkAutoLoot(game);
 
+        // Hareket halinde adım tozu parçacıkları
+        if (Math.hypot(this.vx, this.vy) > 30) {
+            this.stepTimer = (this.stepTimer || 0) + dt;
+            if (this.stepTimer > 0.18) {
+                this.stepTimer = 0;
+                window.particleManager.particles.push({
+                    x: this.x - Math.cos(this.angle) * 12 + (Math.random() - 0.5) * 6,
+                    y: this.y - Math.sin(this.angle) * 12 + (Math.random() - 0.5) * 6,
+                    vx: -this.vx * 0.05 + (Math.random() - 0.5) * 0.8,
+                    vy: -this.vy * 0.05 + (Math.random() - 0.5) * 0.8,
+                    size: 3.5 + Math.random() * 2,
+                    color: 'rgba(160, 140, 110, 0.45)',
+                    alpha: 0.5,
+                    decay: 0.04,
+                    type: 'circle'
+                });
+            }
+        }
+
         // Şarjör süreci
         if (this.isReloading) {
             this.reloadTimer -= dt * 1000;
@@ -568,21 +639,42 @@ class Player {
             ctx.stroke();
         }
 
-        // Oyuncu Gövdesi
+        // Taktik Yelek ve Omuzluklar
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.arc(-2, 0, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.bodyColor;
         ctx.fill();
-        ctx.strokeStyle = '#1a1c23';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#111827';
+        ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // Kalkan Görsel Halkası
+        // Omuz zırhları
+        ctx.fillStyle = this.helmetColor;
+        ctx.beginPath();
+        ctx.arc(-2, -this.radius + 3, 5, 0, Math.PI * 2);
+        ctx.arc(-2, this.radius - 3, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Askeri Kask
+        ctx.beginPath();
+        ctx.arc(2, 0, this.radius * 0.72, 0, Math.PI * 2);
+        ctx.fillStyle = this.helmetColor;
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Kask Vizörü / Taktik Gözlük
+        ctx.fillStyle = this.skinId === 'night' ? '#ef4444' : '#38bdf8';
+        ctx.fillRect(5, -6, 4, 12);
+
+        // Kalkan Görsel Halkası (Pulsing Shield Glow)
         if (this.shield > 0) {
             ctx.beginPath();
-            ctx.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(51, 154, 240, ${0.4 + (this.shield / this.maxShield) * 0.4})`;
-            ctx.lineWidth = 2;
+            ctx.arc(0, 0, this.radius + 4, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(56, 189, 248, ${0.35 + (this.shield / this.maxShield) * 0.45})`;
+            ctx.lineWidth = 2.5;
             ctx.stroke();
         }
 

@@ -10,7 +10,7 @@
     <!-- Oyun Çizim Tuvali -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- İniş Bildirimi -->
+    <!-- İniş / Bölge Bildirimi -->
     <div class="deploy-banner" id="deployNotice">
         🪂 Savaşa Katıldın! Hayatta Kal!
     </div>
@@ -21,6 +21,9 @@
             <div class="pill-item">⚔️ <span id="aliveCount">25</span></div>
             <div class="pill-divider"></div>
             <div class="pill-item">💀 <span id="killsCount">0</span></div>
+            <div class="pill-divider"></div>
+            <button class="pill-action-btn ui-interactive" onclick="window.game.ui.toggleTacticalMap()">🗺️ Harita (M)</button>
+            <button class="icon-btn ui-interactive" onclick="openLobbyModal()">👤 Lobi</button>
             <button class="icon-btn ui-interactive" onclick="document.getElementById('settingsModal').classList.add('active')">⚙️</button>
         </div>
 
@@ -60,8 +63,12 @@
         </div>
     </div>
 
-    <!-- Mobil Dokunmatik Şeffaf Aksiyon Butonları -->
+    <!-- Mobil Dokunmatik Aksiyon Butonları -->
     <div class="mobile-action-buttons ui-interactive">
+        <button class="action-btn fire-btn" onclick="if(window.game.player) window.game.player.shoot(window.game)">
+            🔥
+            <span>ATEŞ</span>
+        </button>
         <button class="action-btn" onclick="window.game.player.manualPickupItem(window.game)">
             🖐️
             <span>AL</span>
@@ -74,29 +81,66 @@
             🩹
             <span>CAN</span>
         </button>
+        <button class="action-btn map-btn" onclick="window.game.ui.toggleTacticalMap()">
+            🗺️
+            <span>HARİTA</span>
+        </button>
     </div>
 
     <!-- ================= MODALLAR ================= -->
 
-    <!-- 1. GİRİŞ VE LOBİ EKRANI (İsteğe bağlı menü) -->
+    <!-- 1. PREMIUM LOBİ VE KARAKTER ÖZELLEŞTİRME EKRANI -->
     <div class="modal-overlay" id="lobbyModal">
-        <div class="modal-card">
-            <div class="game-logo">SURVIVOR 2D</div>
-            <div class="game-sub">BATTLE ROYALE ARENASI</div>
+        <div class="modal-card premium-lobby-card">
+            <div class="lobby-badge">BATTLE ROYALE 2D</div>
+            <div class="game-logo">SURVIVOR</div>
+
+            <!-- Canlı Karakter Önizlemesi -->
+            <div class="character-preview-box">
+                <canvas id="skinCanvas" width="90" height="90"></canvas>
+            </div>
+
+            <!-- Kamuflaj / Skin Seçici -->
+            <div class="camo-selector">
+                <span class="section-label">Kamuflaj Seç:</span>
+                <div class="camo-options">
+                    <button class="camo-chip active" data-skin="default" onclick="selectSkin('default', this)">🪖 Mavi</button>
+                    <button class="camo-chip" data-skin="desert" onclick="selectSkin('desert', this)">🏜️ Çöl</button>
+                    <button class="camo-chip" data-skin="night" onclick="selectSkin('night', this)">🥷 Gece</button>
+                    <button class="camo-chip" data-skin="jungle" onclick="selectSkin('jungle', this)">🌲 Orman</button>
+                    <button class="camo-chip" data-skin="cyber" onclick="selectSkin('cyber', this)">⚡ Siber</button>
+                </div>
+            </div>
+
+            <!-- Kariyer İstatistikleri -->
+            <div class="career-stats-row">
+                <div class="career-item">
+                    <span class="c-val" id="careerWins">0</span>
+                    <span class="c-lbl">🏆 Zafer</span>
+                </div>
+                <div class="career-item">
+                    <span class="c-val" id="careerKills">0</span>
+                    <span class="c-lbl">💀 Leş</span>
+                </div>
+                <div class="career-item">
+                    <span class="c-val" id="careerMatches">0</span>
+                    <span class="c-lbl">🎮 Maç</span>
+                </div>
+            </div>
 
             <div class="input-group">
-                <label for="playerNameInput">Savaşçı Adın:</label>
-                <input type="text" id="playerNameInput" value="Savaşçı" maxlength="14">
+                <input type="text" id="playerNameInput" value="Savaşçı" maxlength="14" placeholder="Oyuncu Adı">
             </div>
 
             <div class="menu-actions">
-                <button class="btn-primary ui-interactive" onclick="
-                    const name = document.getElementById('playerNameInput').value.trim() || 'Savaşçı';
-                    window.soundManager.ensureContext();
-                    window.game.startNewMatch(name);
-                ">⚔️ SAVAŞA BAŞLA</button>
-                <button class="btn-secondary ui-interactive" onclick="document.getElementById('settingsModal').classList.add('active')">⚙️ AYARLAR</button>
-                <button class="btn-secondary ui-interactive" onclick="document.getElementById('helpModal').classList.add('active')">❓ NASIL OYNANIR</button>
+                <button class="btn-primary deploy-btn ui-interactive" onclick="startCustomMatch()">
+                    ⚔️ SAVAŞA BAŞLA
+                </button>
+                <div class="sub-btn-group">
+                    <button class="btn-secondary ui-interactive" onclick="window.game.ui.toggleTacticalMap(); document.getElementById('lobbyModal').classList.remove('active');">🗺️ Taktik Harita</button>
+                    <button class="btn-secondary ui-interactive" onclick="document.getElementById('settingsModal').classList.add('active')">⚙️ Ayarlar</button>
+                    <button class="btn-secondary ui-interactive" onclick="document.getElementById('helpModal').classList.add('active')">❓ Rehber</button>
+                </div>
             </div>
         </div>
     </div>
@@ -133,7 +177,7 @@
                     document.documentElement.style.setProperty('--ui-opacity', (this.value / 100));
                 ">
             </div>
-            <button class="btn-primary ui-interactive" style="margin-top: 18px;" onclick="document.getElementById('settingsModal').classList.remove('active')">Tamam</button>
+            <button class="btn-primary ui-interactive" style="margin-top: 18px; width: 100%;" onclick="document.getElementById('settingsModal').classList.remove('active')">Kaydet & Kapat</button>
         </div>
     </div>
 
@@ -141,27 +185,25 @@
     <div class="modal-overlay" id="helpModal">
         <div class="modal-card help-card">
             <div class="modal-header">
-                <h2>❓ NASIL OYNANIR</h2>
+                <h2>❓ NASIL OYNANIR & HARİTA REHBERİ</h2>
             </div>
             <div class="help-content">
-                <p><b>🕹️ Bilgisayar Kontrolleri:</b></p>
-                <p>• <b>W, A, S, D:</b> Hareket et</p>
-                <p>• <b>Fare:</b> Nişan al ve Sol Tık ile ateş et</p>
-                <p>• <b>E:</b> Yerdeki silah veya eşyayı değiştir / topla</p>
-                <p>• <b>R:</b> Şarjör doldur | <b>1, 2, 3:</b> Silah seç</p>
-                <p>• <b>4, 5, 6:</b> Can veya kalkan bas</p>
+                <p><b>🕹️ Kontroller:</b></p>
+                <p>• <b>W, A, S, D / Sol Joystick:</b> Hareket</p>
+                <p>• <b>Fare / Sağ Joystick:</b> Nişan Alma & Ateş</p>
+                <p>• <b>M Tuşu veya Mini Haritaya Dokunma:</b> Büyük Taktik Haritası</p>
+                <p>• <b>E / AL Butonu:</b> Yerdeki Silah veya Eşyayı Alma</p>
+                <p>• <b>R / DOLDUR:</b> Şarjör Yenileme | <b>1, 2, 3:</b> Silah Seçimi</p>
                 <hr>
-                <p><b>📱 Mobil Kontroller:</b></p>
-                <p>• <b>Sol Ekran:</b> Parmakla hareket joysticki</p>
-                <p>• <b>Sağ Ekran:</b> Nişan & otomatik ateş joysticki</p>
-                <p>• <b>🖐️ AL / 🔄 DOLDUR / 🩹 CAN:</b> Aksiyon butonları</p>
-                <hr>
-                <p><b>🌟 Yeni Özellikler:</b></p>
-                <p>• <b>Dürbünler (2x, 4x, 8x):</b> Yerden alındığında kamerayı uzaklaştırarak devasa panoramik görüş sağlar.</p>
-                <p>• <b>Sırt Çantaları:</b> Seviyesine göre mermi ve can eşyası taşıma sınırınızı katlar.</p>
-                <p>• <b>Otomatik Toplama:</b> Üzerinden geçtiğiniz mermi, çanta, dürbün ve can kitleri anında toplanır.</p>
+                <p><b>📍 Haritadaki Önemli Bölgeler:</b></p>
+                <p>• 🏛️ <b>Terk Edilmiş Köşk:</b> Lüks odalar, altın sandıklar ve keskin nişancı tüfekleri.</p>
+                <p>• 🎖️ <b>Askeri Üs:</b> Helipad, beton sığınaklar ve ağır roketatarlar.</p>
+                <p>• 🪨 <b>Sisli Mağara:</b> Dar kayalıklar ve parlayan kristaller arasında gizli zırhlar.</p>
+                <p>• 📦 <b>Konteyner Limanı:</b> Renkli kargo konteynerleri ve patlayıcı variller.</p>
+                <p>• 🏕️ <b>Çam Dağ Köyü:</b> Ahşap dağ evleri ve kamp ateşi.</p>
+                <p>• 🌊 <b>Vadi Nehri:</b> Haritayı kesen nehir ve stratejik köprüler.</p>
             </div>
-            <button class="btn-primary ui-interactive" style="margin-top: 14px;" onclick="document.getElementById('helpModal').classList.remove('active')">Anladım</button>
+            <button class="btn-primary ui-interactive" style="margin-top: 14px; width: 100%;" onclick="document.getElementById('helpModal').classList.remove('active')">Anladım</button>
         </div>
     </div>
 
@@ -173,14 +215,109 @@
             <div class="kills-text" id="endKills">Toplam Leş: 0</div>
             <div style="display: flex; gap: 10px; justify-content: center;">
                 <button class="btn-primary ui-interactive" onclick="window.game.startNewMatch()">Tekrar Oyna</button>
-                <button class="btn-secondary ui-interactive" onclick="
-                    document.getElementById('endScreen').classList.remove('active');
-                    document.getElementById('lobbyModal').classList.add('active');
-                    window.game.gameState = 'LOBBY';
-                ">Lobiye Dön</button>
+                <button class="btn-secondary ui-interactive" onclick="openLobbyModal()">Lobiye Dön</button>
             </div>
         </div>
     </div>
+
+    <!-- Lobi ve Karakter Önizleme Yardımcı Scripti -->
+    <script>
+        let currentSkin = 'default';
+
+        function selectSkin(skinId, btn) {
+            currentSkin = skinId;
+            document.querySelectorAll('.camo-chip').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            drawSkinPreview(skinId);
+            if (window.game && window.game.player) {
+                window.game.player.applySkin(skinId);
+            }
+        }
+
+        function drawSkinPreview(skinId) {
+            const canvas = document.getElementById('skinCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const colors = {
+                default: { body: '#3b82f6', helmet: '#1d4ed8' },
+                desert: { body: '#d97706', helmet: '#b45309' },
+                night: { body: '#1e293b', helmet: '#0f172a' },
+                jungle: { body: '#2d6a4f', helmet: '#1b4332' },
+                cyber: { body: '#06b6d4', helmet: '#7c3aed' }
+            };
+            const c = colors[skinId] || colors.default;
+
+            const cx = 45;
+            const cy = 45;
+            const r = 24;
+
+            // Gölge
+            ctx.beginPath();
+            ctx.arc(cx + 3, cy + 5, r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.35)';
+            ctx.fill();
+
+            // Silah
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(cx + 10, cy - 5, 26, 10);
+
+            // Eller
+            ctx.fillStyle = '#f5cba7';
+            ctx.beginPath();
+            ctx.arc(cx + 18, cy - 12, 7, 0, Math.PI * 2);
+            ctx.arc(cx + 22, cy + 10, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Gövde
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fillStyle = c.body;
+            ctx.fill();
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Kask
+            ctx.beginPath();
+            ctx.arc(cx + 3, cy, r * 0.75, 0, Math.PI * 2);
+            ctx.fillStyle = c.helmet;
+            ctx.fill();
+            ctx.stroke();
+
+            // Vizör
+            ctx.fillStyle = skinId === 'night' ? '#ef4444' : '#38bdf8';
+            ctx.fillRect(cx + 8, cy - 7, 5, 14);
+        }
+
+        function openLobbyModal() {
+            const modal = document.getElementById('lobbyModal');
+            if (!modal) return;
+
+            // İstatistikleri Güncelle
+            if (window.game) {
+                const stats = window.game.getCareerStats();
+                document.getElementById('careerWins').textContent = stats.wins || 0;
+                document.getElementById('careerKills').textContent = stats.kills || 0;
+                document.getElementById('careerMatches').textContent = stats.matches || 0;
+            }
+
+            modal.classList.add('active');
+            drawSkinPreview(currentSkin);
+        }
+
+        function startCustomMatch() {
+            const name = document.getElementById('playerNameInput').value.trim() || 'Savaşçı';
+            window.soundManager.ensureContext();
+            document.getElementById('lobbyModal').classList.remove('active');
+            window.game.startNewMatch(name, currentSkin);
+        }
+
+        window.addEventListener('load', () => {
+            drawSkinPreview(currentSkin);
+        });
+    </script>
 
     <!-- Oyun Scriptleri -->
     <script src="js/audio.js"></script>

@@ -63,14 +63,20 @@ class Game {
         // Oyuncuyu haritanın güvenli bir yerine yerleştir
         const px = this.map.width / 2 + (Math.random() - 0.5) * 800;
         const py = this.map.height / 2 + (Math.random() - 0.5) * 800;
+        this.selectedSkin = skinId || this.selectedSkin || 'default';
         this.player = new Player(px, py, playerName || 'Sen', false);
+        this.player.applySkin(this.selectedSkin);
 
         // 24 Botu Haritaya Dağıt
         this.bots = [];
         for (let i = 0; i < this.totalPlayers - 1; i++) {
             const bx = 200 + Math.random() * (this.map.width - 400);
             const by = 200 + Math.random() * (this.map.height - 400);
-            this.bots.push(new Bot(bx, by));
+            const bot = new Bot(bx, by);
+            // Botlara da rastgele kamuflaj ver
+            const skins = ['default', 'desert', 'night', 'jungle', 'cyber'];
+            bot.applySkin(skins[Math.floor(Math.random() * skins.length)]);
+            this.bots.push(bot);
         }
 
         // Ekranları Kapat
@@ -80,8 +86,25 @@ class Game {
         const endScreen = document.getElementById('endScreen');
         if (endScreen) endScreen.classList.remove('active');
 
-        // İniş bildirimi göster
         this.showDeployNotice();
+    }
+
+    getCareerStats() {
+        try {
+            return JSON.parse(localStorage.getItem('survivor_career')) || { matches: 0, wins: 0, kills: 0 };
+        } catch (e) {
+            return { matches: 0, wins: 0, kills: 0 };
+        }
+    }
+
+    saveCareerStats(isVictory) {
+        const stats = this.getCareerStats();
+        stats.matches += 1;
+        if (isVictory) stats.wins += 1;
+        if (this.player) stats.kills += this.player.kills;
+        try {
+            localStorage.setItem('survivor_career', JSON.stringify(stats));
+        } catch (e) {}
     }
 
     showDeployNotice() {
@@ -99,6 +122,12 @@ class Game {
             window.soundManager.ensureContext();
             this.keys[e.key.toLowerCase()] = true;
             this.keys[e.code] = true;
+
+            // M Tuşu ile Büyük Taktik Haritasını Aç / Kapat
+            if (e.key === 'm' || e.key === 'M') {
+                this.ui.toggleTacticalMap();
+                return;
+            }
 
             if (this.gameState !== 'PLAYING') return;
 
@@ -199,11 +228,13 @@ class Game {
 
         if (victim === this.player) {
             this.gameState = 'GAMEOVER';
+            this.saveCareerStats(false);
             this.spectatingEntity = killer || this.bots.find(b => !b.isDead);
             this.showEndGameModal(false, aliveCount + 1);
         } else {
             if (aliveCount === 1 && !this.player.isDead) {
                 this.gameState = 'VICTORY';
+                this.saveCareerStats(true);
                 window.soundManager.playVictory();
                 this.showEndGameModal(true, 1);
             }
@@ -408,6 +439,7 @@ class Game {
         window.particleManager.update();
         this.updateCamera(dt);
         this.updateHUD();
+        this.ui.checkRegionUpdate(this.player, this.map, dt);
     }
 
     updateHUD() {
@@ -534,6 +566,8 @@ class Game {
             this.ui.drawMiniMap(this.ctx, this.map, this.storm, this.player);
         }
         this.ui.drawKillFeed(this.ctx);
+        this.ui.drawRegionBanner(this.ctx);
+        this.ui.drawTacticalMapModal(this.ctx, this.map, this.storm, this.player);
     }
 
     run() {
