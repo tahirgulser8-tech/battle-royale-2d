@@ -1,3 +1,23 @@
+// Canvas roundRect Polyfill (Eski tarayıcılar ve Android WebView uyumluluğu için)
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+        let r = typeof radii === 'number' ? radii : (Array.isArray(radii) ? radii[0] : 0);
+        r = Math.min(Math.max(0, r), Math.abs(w) / 2, Math.abs(h) / 2);
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.lineTo(x + w - r, y);
+        this.arcTo(x + w, y, x + w, y + r, r);
+        this.lineTo(x + w, y + h - r);
+        this.arcTo(x + w, y + h, x + w - r, y + h, r);
+        this.lineTo(x + r, y + h);
+        this.arcTo(x, y + h, x, y + h - r, r);
+        this.lineTo(x, y + r);
+        this.arcTo(x, y, x + r, y, r);
+        this.closePath();
+        return this;
+    };
+}
+
 // Kullanıcı Arayüzü, Şeffaf Mini Harita ve Büyük Taktik Haritası
 class UIManager {
     constructor(game) {
@@ -195,11 +215,21 @@ class UIManager {
         const cx = window.innerWidth / 2;
         const cy = 68;
 
+        const bx = cx - tw / 2 - 16;
+        const by = cy - 14;
+        const bw = tw + 32;
+        const bh = 28;
+        const br = 14;
+
         ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
         ctx.strokeStyle = '#38bdf8';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.roundRect(cx - tw / 2 - 16, cy - 14, tw + 32, 28, 14);
+        if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(bx, by, bw, bh, br);
+        } else {
+            ctx.rect(bx, by, bw, bh);
+        }
         ctx.fill();
         ctx.stroke();
 

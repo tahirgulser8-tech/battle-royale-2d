@@ -90,7 +90,7 @@
     <!-- ================= MODALLAR ================= -->
 
     <!-- 1. PREMIUM LOBİ VE KARAKTER ÖZELLEŞTİRME EKRANI -->
-    <div class="modal-overlay" id="lobbyModal">
+    <div class="modal-overlay active" id="lobbyModal">
         <div class="modal-card premium-lobby-card">
             <div class="lobby-badge">BATTLE ROYALE 2D</div>
             <div class="game-logo">SURVIVOR</div>
@@ -136,8 +136,11 @@
                 <button class="btn-primary deploy-btn ui-interactive" onclick="startCustomMatch()">
                     ⚔️ SAVAŞA BAŞLA
                 </button>
+                <button class="btn-secondary ui-interactive" id="lobbyResumeBtn" style="display: none; width: 100%; margin-top: 4px;" onclick="resumeGameFromLobby()">
+                    ▶️ OYUNA DEVAM ET
+                </button>
                 <div class="sub-btn-group">
-                    <button class="btn-secondary ui-interactive" onclick="window.game.ui.toggleTacticalMap(); document.getElementById('lobbyModal').classList.remove('active');">🗺️ Taktik Harita</button>
+                    <button class="btn-secondary ui-interactive" onclick="window.game && window.game.ui && window.game.ui.toggleTacticalMap(); document.getElementById('lobbyModal').classList.remove('active');">🗺️ Taktik Harita</button>
                     <button class="btn-secondary ui-interactive" onclick="document.getElementById('settingsModal').classList.add('active')">⚙️ Ayarlar</button>
                     <button class="btn-secondary ui-interactive" onclick="document.getElementById('helpModal').classList.add('active')">❓ Rehber</button>
                 </div>
@@ -238,6 +241,7 @@
             const canvas = document.getElementById('skinCanvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
+            if (!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const colors = {
@@ -291,6 +295,14 @@
             ctx.fillRect(cx + 8, cy - 7, 5, 14);
         }
 
+        function resumeGameFromLobby() {
+            const modal = document.getElementById('lobbyModal');
+            if (modal) modal.classList.remove('active');
+            if (window.game && window.game.player && !window.game.player.isDead) {
+                window.game.gameState = 'PLAYING';
+            }
+        }
+
         function openLobbyModal() {
             const modal = document.getElementById('lobbyModal');
             if (!modal) return;
@@ -298,9 +310,22 @@
             // İstatistikleri Güncelle
             if (window.game) {
                 const stats = window.game.getCareerStats();
-                document.getElementById('careerWins').textContent = stats.wins || 0;
-                document.getElementById('careerKills').textContent = stats.kills || 0;
-                document.getElementById('careerMatches').textContent = stats.matches || 0;
+                const w = document.getElementById('careerWins');
+                const k = document.getElementById('careerKills');
+                const m = document.getElementById('careerMatches');
+                if (w) w.textContent = stats.wins || 0;
+                if (k) k.textContent = stats.kills || 0;
+                if (m) m.textContent = stats.matches || 0;
+
+                const resumeBtn = document.getElementById('lobbyResumeBtn');
+                if (resumeBtn) {
+                    if (window.game.player && !window.game.player.isDead && window.game.bots && window.game.bots.length > 0) {
+                        resumeBtn.style.display = 'block';
+                    } else {
+                        resumeBtn.style.display = 'none';
+                    }
+                }
+                window.game.gameState = 'LOBBY';
             }
 
             modal.classList.add('active');
@@ -308,10 +333,14 @@
         }
 
         function startCustomMatch() {
-            const name = document.getElementById('playerNameInput').value.trim() || 'Savaşçı';
-            window.soundManager.ensureContext();
-            document.getElementById('lobbyModal').classList.remove('active');
-            window.game.startNewMatch(name, currentSkin);
+            const nameEl = document.getElementById('playerNameInput');
+            const name = (nameEl && nameEl.value.trim()) || 'Savaşçı';
+            if (window.soundManager) window.soundManager.ensureContext();
+            const modal = document.getElementById('lobbyModal');
+            if (modal) modal.classList.remove('active');
+            if (window.game) {
+                window.game.startNewMatch(name, currentSkin);
+            }
         }
 
         window.addEventListener('load', () => {

@@ -26,6 +26,7 @@ class Game {
         this.lastTime = performance.now();
         this.gameState = 'LOBBY'; // 'LOBBY', 'PLAYING', 'GAMEOVER', 'VICTORY'
         this.spectatingEntity = null;
+        this.selectedSkin = 'default';
 
         this.settings = {
             masterVolume: 0.8,
@@ -36,7 +37,7 @@ class Game {
 
         this.initInput();
         this.applySettings();
-        this.startNewMatch('Sen');
+        this.initLobby('Savaşçı', 'default');
     }
 
     resize() {
@@ -49,8 +50,36 @@ class Game {
         window.soundManager.setSfxVolume(this.settings.sfxVolume);
     }
 
+    // Başlangıç Lobi Durumu
+    initLobby(playerName = 'Savaşçı', skinId = 'default') {
+        this.gameState = 'LOBBY';
+        this.spectatingEntity = null;
+        this.bullets = [];
+        this.currentZoom = 1.0;
+        this.targetZoom = 1.0;
+
+        this.map = new GameMap(3400, 3400);
+        this.storm = new StormSystem(this.map.width, this.map.height);
+
+        const px = this.map.width / 2;
+        const py = this.map.height / 2;
+        this.selectedSkin = skinId || 'default';
+        this.player = new Player(px, py, playerName || 'Savaşçı', false);
+        this.player.applySkin(this.selectedSkin);
+
+        this.bots = [];
+
+        this.camera.x = Math.max(0, Math.min(this.map.width - this.canvas.width, px - this.canvas.width / 2));
+        this.camera.y = Math.max(0, Math.min(this.map.height - this.canvas.height, py - this.canvas.height / 2));
+
+        const lobbyModal = document.getElementById('lobbyModal');
+        if (lobbyModal) lobbyModal.classList.add('active');
+
+        this.updateHUD();
+    }
+
     // Lobiden Oyunu Başlat
-    startNewMatch(playerName = 'Sen') {
+    startNewMatch(playerName = 'Sen', skinId = 'default') {
         this.gameState = 'PLAYING';
         this.spectatingEntity = null;
         this.bullets = [];
@@ -85,6 +114,10 @@ class Game {
 
         const endScreen = document.getElementById('endScreen');
         if (endScreen) endScreen.classList.remove('active');
+
+        this.camera.x = Math.max(0, Math.min(this.map.width - this.canvas.width, px - this.canvas.width / 2));
+        this.camera.y = Math.max(0, Math.min(this.map.height - this.canvas.height, py - this.canvas.height / 2));
+        this.updateHUD();
 
         this.showDeployNotice();
     }
@@ -561,12 +594,14 @@ class Game {
         this.ctx.restore();
 
         // 7. Arayüz Elemanları (1:1 ölçekte)
-        this.ui.drawVirtualJoysticks(this.ctx);
-        if (this.player) {
-            this.ui.drawMiniMap(this.ctx, this.map, this.storm, this.player);
+        if (this.gameState === 'PLAYING') {
+            this.ui.drawVirtualJoysticks(this.ctx);
+            if (this.player) {
+                this.ui.drawMiniMap(this.ctx, this.map, this.storm, this.player);
+            }
+            this.ui.drawKillFeed(this.ctx);
+            this.ui.drawRegionBanner(this.ctx);
         }
-        this.ui.drawKillFeed(this.ctx);
-        this.ui.drawRegionBanner(this.ctx);
         this.ui.drawTacticalMapModal(this.ctx, this.map, this.storm, this.player);
     }
 
@@ -575,8 +610,12 @@ class Game {
             const dt = Math.min(0.1, (currentTime - this.lastTime) / 1000);
             this.lastTime = currentTime;
 
-            this.update(dt);
-            this.render();
+            try {
+                this.update(dt);
+                this.render();
+            } catch (err) {
+                console.error("Oyun döngüsü hatası:", err);
+            }
 
             requestAnimationFrame(loop);
         };
@@ -586,9 +625,13 @@ class Game {
 
 // Güvenli ve Hızlı Başlatıcı
 function launchGame() {
-    if (!window.game) {
-        window.game = new Game();
-        window.game.run();
+    try {
+        if (!window.game) {
+            window.game = new Game();
+            window.game.run();
+        }
+    } catch (e) {
+        console.error("Oyun başlatılırken kritik hata:", e);
     }
 }
 
