@@ -1,0 +1,501 @@
+:root {
+    --ui-opacity: 0.85;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #0d1117;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #ffffff;
+    touch-action: none;
+}
+
+#gameCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+}
+
+/* İniş / Savaş Başlangıç Bildirimi */
+.deploy-banner {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-30px);
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid #38bdf8;
+    color: #f0f9ff;
+    padding: 8px 22px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 30;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+}
+
+.deploy-banner.active {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Minimalist Üst Bar */
+.hud-top {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    right: 140px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
+    opacity: var(--ui-opacity);
+}
+
+.stats-pill {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 18px;
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(6px);
+    pointer-events: auto;
+}
+
+.pill-item {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.pill-item span {
+    color: #ffd43b;
+    font-size: 14px;
+}
+
+.pill-divider {
+    width: 1px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 2px;
+    transition: color 0.15s;
+}
+
+.icon-btn:hover {
+    color: #ffffff;
+}
+
+.storm-pill {
+    background: rgba(46, 16, 70, 0.75);
+    border: 1px solid #c084fc;
+    border-radius: 14px;
+    padding: 4px 12px;
+    font-weight: 700;
+    font-size: 12px;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.3);
+}
+
+/* Sol Alt: Can, Kalkan, Dürbün ve Çanta Rozetleri */
+.hud-bottom-left {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 160px;
+    opacity: var(--ui-opacity);
+}
+
+.equipment-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+}
+
+.badge {
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+}
+
+.scope-badge {
+    background: rgba(37, 99, 235, 0.65);
+    border: 1px solid #60a5fa;
+    color: #eff6ff;
+}
+
+.backpack-badge {
+    background: rgba(217, 119, 6, 0.65);
+    border: 1px solid #fbbf24;
+    color: #fffbeb;
+}
+
+.mini-bar-track {
+    position: relative;
+    width: 100%;
+    height: 14px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mini-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.15s ease-out;
+}
+
+.shield-fill {
+    background: linear-gradient(90deg, #0284c7, #38bdf8);
+}
+
+.health-fill {
+    background: linear-gradient(90deg, #16a34a, #4ade80);
+}
+
+.bar-num {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 0 2px #000;
+}
+
+/* Alt Merkez: Kompakt Silah Yuvaları */
+.hud-bottom-center {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+    opacity: var(--ui-opacity);
+}
+
+.slot-pill {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: all 0.15s;
+}
+
+.slot-pill.active {
+    border-color: #ffd43b;
+    color: #ffffff;
+    background: rgba(30, 41, 59, 0.9);
+    box-shadow: 0 0 8px rgba(255, 212, 59, 0.35);
+    transform: translateY(-2px);
+}
+
+/* Sağ Alt: Minimal Cephane */
+.hud-bottom-right {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    z-index: 10;
+    pointer-events: none;
+    opacity: var(--ui-opacity);
+}
+
+.ammo-pill {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    backdrop-filter: blur(6px);
+}
+
+.ammo-pill .weapon-name {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.ammo-pill .ammo-val {
+    font-size: 18px;
+    font-weight: 900;
+    color: #f8fafc;
+}
+
+/* Mobil Butonlar (Şeffaf ve Kompakt) */
+.mobile-action-buttons {
+    display: none;
+    position: absolute;
+    bottom: 80px;
+    right: 18px;
+    z-index: 20;
+    flex-direction: column;
+    gap: 8px;
+    opacity: var(--ui-opacity);
+}
+
+.touch-device .mobile-action-buttons {
+    display: flex;
+}
+
+.action-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    background: rgba(15, 23, 42, 0.65);
+    color: #fff;
+    font-size: 17px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+}
+
+.action-btn span {
+    font-size: 8px;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #cbd5e1;
+}
+
+.action-btn:active {
+    transform: scale(0.92);
+    background: rgba(51, 65, 85, 0.85);
+    border-color: #ffd43b;
+}
+
+/* ================= MODALLAR ================= */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 8, 12, 0.85);
+    backdrop-filter: blur(10px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-card {
+    background: rgba(17, 24, 39, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    padding: 26px 36px;
+    text-align: center;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    max-width: 440px;
+    width: 88%;
+}
+
+.game-logo {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #ffd43b, #ff922b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 2px;
+}
+
+.game-sub {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #94a3b8;
+    margin-bottom: 22px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+.input-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #cbd5e1;
+}
+
+.input-group input {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: #ffd43b;
+}
+
+.menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    transition: transform 0.1s, opacity 0.15s;
+}
+
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Ayarlar */
+.settings-card {
+    text-align: left;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #f1f5f9;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #cbd5e1;
+}
+
+.setting-row input[type="range"] {
+    width: 140px;
+    accent-color: #ffd43b;
+}
+
+.setting-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2563eb;
+    cursor: pointer;
+}
+
+/* Yardım */
+.help-card {
+    text-align: left;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.help-content {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #cbd5e1;
+}
+
+.help-content hr {
+    margin: 8px 0;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Zafer / Elenme Başlıkları */
+.title.victory {
+    color: #ffd43b;
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.title.defeat {
+    color: #f87171;
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.kills-text {
+    font-size: 16px;
+    color: #fbbf24;
+    font-weight: 700;
+    margin: 12px 0 20px 0;
+}

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2D Battle Royale - Survivor</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Oyun Çizim Tuvali -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- İniş Bildirimi -->
+    <div class="deploy-banner" id="deployNotice">
+        🪂 Savaşa Katıldın! Hayatta Kal!
+    </div>
+
+    <!-- Minimalist Üst HUD -->
+    <div class="hud-top">
+        <div class="stats-pill">
+            <div class="pill-item">⚔️ <span id="aliveCount">25</span></div>
+            <div class="pill-divider"></div>
+            <div class="pill-item">💀 <span id="killsCount">0</span></div>
+            <button class="icon-btn ui-interactive" onclick="document.getElementById('settingsModal').classList.add('active')">⚙️</button>
+        </div>
+
+        <div class="storm-pill" id="stormStatus">
+            ⏳ 18s
+        </div>
+    </div>
+
+    <!-- Sol Alt Minimalist Can, Kalkan, Çanta ve Dürbün Rozetleri -->
+    <div class="hud-bottom-left">
+        <div class="equipment-badges">
+            <span class="badge scope-badge" id="scopeBadge" style="display: none;">🎯 2x Dürbün</span>
+            <span class="badge backpack-badge" id="backpackBadge" style="display: none;">🎒 Sev. 1 Çanta</span>
+        </div>
+        <div class="mini-bar-track">
+            <div class="mini-bar-fill shield-fill" id="shieldFill" style="width: 50%;"></div>
+            <span class="bar-num" id="shieldText">50</span>
+        </div>
+        <div class="mini-bar-track">
+            <div class="mini-bar-fill health-fill" id="healthFill" style="width: 100%;"></div>
+            <span class="bar-num" id="healthText">100</span>
+        </div>
+    </div>
+
+    <!-- Alt Merkez: Kompakt Silah Yuvaları -->
+    <div class="hud-bottom-center ui-interactive">
+        <div class="slot-pill active" id="slot-0" onclick="window.game.player.switchWeapon(0)">🔫 Glock</div>
+        <div class="slot-pill" id="slot-1" onclick="window.game.player.switchWeapon(1)">(Boş)</div>
+        <div class="slot-pill" id="slot-2" onclick="window.game.player.switchWeapon(2)">👊 Yumruk</div>
+    </div>
+
+    <!-- Sağ Alt: Minimal Cephane Sayacı -->
+    <div class="hud-bottom-right">
+        <div class="ammo-pill">
+            <span class="weapon-name" id="currentWeaponName">Glock-18</span>
+            <span class="ammo-val" id="currentAmmo">15 / 45</span>
+        </div>
+    </div>
+
+    <!-- Mobil Dokunmatik Şeffaf Aksiyon Butonları -->
+    <div class="mobile-action-buttons ui-interactive">
+        <button class="action-btn" onclick="window.game.player.manualPickupItem(window.game)">
+            🖐️
+            <span>AL</span>
+        </button>
+        <button class="action-btn" onclick="window.game.player.startReload()">
+            🔄
+            <span>DOLDUR</span>
+        </button>
+        <button class="action-btn" onclick="window.game.player.useItem('medkit') || window.game.player.useItem('bandage')">
+            🩹
+            <span>CAN</span>
+        </button>
+    </div>
+
+    <!-- ================= MODALLAR ================= -->
+
+    <!-- 1. GİRİŞ VE LOBİ EKRANI (İsteğe bağlı menü) -->
+    <div class="modal-overlay" id="lobbyModal">
+        <div class="modal-card">
+            <div class="game-logo">SURVIVOR 2D</div>
+            <div class="game-sub">BATTLE ROYALE ARENASI</div>
+
+            <div class="input-group">
+                <label for="playerNameInput">Savaşçı Adın:</label>
+                <input type="text" id="playerNameInput" value="Savaşçı" maxlength="14">
+            </div>
+
+            <div class="menu-actions">
+                <button class="btn-primary ui-interactive" onclick="
+                    const name = document.getElementById('playerNameInput').value.trim() || 'Savaşçı';
+                    window.soundManager.ensureContext();
+                    window.game.startNewMatch(name);
+                ">⚔️ SAVAŞA BAŞLA</button>
+                <button class="btn-secondary ui-interactive" onclick="document.getElementById('settingsModal').classList.add('active')">⚙️ AYARLAR</button>
+                <button class="btn-secondary ui-interactive" onclick="document.getElementById('helpModal').classList.add('active')">❓ NASIL OYNANIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. AYARLAR MODALI -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-card settings-card">
+            <div class="modal-header">
+                <h2>⚙️ OYUN AYARLARI</h2>
+            </div>
+            <div class="setting-row">
+                <span>Ana Ses:</span>
+                <input type="range" id="volMaster" min="0" max="100" value="80" oninput="
+                    window.game.settings.masterVolume = this.value / 100;
+                    window.game.applySettings();
+                ">
+            </div>
+            <div class="setting-row">
+                <span>Efekt Sesleri:</span>
+                <input type="range" id="volSfx" min="0" max="100" value="80" oninput="
+                    window.game.settings.sfxVolume = this.value / 100;
+                    window.game.applySettings();
+                ">
+            </div>
+            <div class="setting-row">
+                <span>Otomatik Eşya Toplama:</span>
+                <input type="checkbox" id="chkAutoLoot" checked onchange="
+                    window.game.settings.autoLoot = this.checked;
+                ">
+            </div>
+            <div class="setting-row">
+                <span>Arayüz Şeffaflığı:</span>
+                <input type="range" id="uiOpacity" min="30" max="100" value="85" oninput="
+                    document.documentElement.style.setProperty('--ui-opacity', (this.value / 100));
+                ">
+            </div>
+            <button class="btn-primary ui-interactive" style="margin-top: 18px;" onclick="document.getElementById('settingsModal').classList.remove('active')">Tamam</button>
+        </div>
+    </div>
+
+    <!-- 3. NASIL OYNANIR MODALI -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal-card help-card">
+            <div class="modal-header">
+                <h2>❓ NASIL OYNANIR</h2>
+            </div>
+            <div class="help-content">
+                <p><b>🕹️ Bilgisayar Kontrolleri:</b></p>
+                <p>• <b>W, A, S, D:</b> Hareket et</p>
+                <p>• <b>Fare:</b> Nişan al ve Sol Tık ile ateş et</p>
+                <p>• <b>E:</b> Yerdeki silah veya eşyayı değiştir / topla</p>
+                <p>• <b>R:</b> Şarjör doldur | <b>1, 2, 3:</b> Silah seç</p>
+                <p>• <b>4, 5, 6:</b> Can veya kalkan bas</p>
+                <hr>
+                <p><b>📱 Mobil Kontroller:</b></p>
+                <p>• <b>Sol Ekran:</b> Parmakla hareket joysticki</p>
+                <p>• <b>Sağ Ekran:</b> Nişan & otomatik ateş joysticki</p>
+                <p>• <b>🖐️ AL / 🔄 DOLDUR / 🩹 CAN:</b> Aksiyon butonları</p>
+                <hr>
+                <p><b>🌟 Yeni Özellikler:</b></p>
+                <p>• <b>Dürbünler (2x, 4x, 8x):</b> Yerden alındığında kamerayı uzaklaştırarak devasa panoramik görüş sağlar.</p>
+                <p>• <b>Sırt Çantaları:</b> Seviyesine göre mermi ve can eşyası taşıma sınırınızı katlar.</p>
+                <p>• <b>Otomatik Toplama:</b> Üzerinden geçtiğiniz mermi, çanta, dürbün ve can kitleri anında toplanır.</p>
+            </div>
+            <button class="btn-primary ui-interactive" style="margin-top: 14px;" onclick="document.getElementById('helpModal').classList.remove('active')">Anladım</button>
+        </div>
+    </div>
+
+    <!-- 4. ZAFER / OYUN BİTTİ PENCERESİ -->
+    <div class="modal-overlay" id="endScreen">
+        <div class="modal-card">
+            <div class="title victory" id="endTitle">🏆 1. OLDUN!</div>
+            <div class="desc" id="endDesc">Tüm rakiplerini eleyerek hayatta kalan son savaşçı oldun!</div>
+            <div class="kills-text" id="endKills">Toplam Leş: 0</div>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn-primary ui-interactive" onclick="window.game.startNewMatch()">Tekrar Oyna</button>
+                <button class="btn-secondary ui-interactive" onclick="
+                    document.getElementById('endScreen').classList.remove('active');
+                    document.getElementById('lobbyModal').classList.add('active');
+                    window.game.gameState = 'LOBBY';
+                ">Lobiye Dön</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Oyun Scriptleri -->
+    <script src="js/audio.js"></script>
+    <script src="js/weapons.js"></script>
+    <script src="js/particle.js"></script>
+    <script src="js/storm.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/bot.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

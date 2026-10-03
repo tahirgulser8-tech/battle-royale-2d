@@ -1,0 +1,5 @@
+# Geçici ve log dosyaları
+server.log
+*.log
+.DS_Store
+node_modules/
